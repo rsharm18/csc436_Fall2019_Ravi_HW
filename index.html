@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html>
-    <h3>Javascript Basics</h3>
-    <button onclick="cleanAndCountCharacters(this)">
-        clean and count words
-    </button>
+<head>
+	<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+	crossorigin="anonymous">
 	
-    <body>
+</head>
+	<body>
+		<div class="container" id="container">
+			<h3>Javascript Basics</h3>
+			<div class="buttons" id="buttons">
+			<button onclick="cleanAndCountCharacters(this)" class='btn btn-info'>
+				clean and count words
+			</button>
+			</div>
+		</div>
     </body>
 </html>
 
@@ -51,7 +62,9 @@
     var colors = ['red', 'blue', 'gold'];
 	var cleanAndCountWords=false;
 	var IsToggleDislayOn = false;
-
+	var addToggleDisplayButton=true;
+	var className='row';
+	
     var chicagoStartups = [
         '  Interior   Define  ',
         'Classkick',
@@ -78,7 +91,7 @@
 				rootDiv.removeChild(rootDiv.lastChild);
             }
 			
-			document.body.removeChild(rootDiv);
+			container.removeChild(rootDiv);
         }
     }
 
@@ -88,16 +101,19 @@
         rootDiv.id = 'rootContainer';
         var companyNamesContainer = document.createElement('div');
 		companyNamesContainer.id='companyNames';
+		companyNamesContainer.className='col-md-6';
 		
         chicagoStartups.forEach( function(chicagoStartup, index) {
             var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
-            var text = document.createTextNode(index.toString().concat(' .) ').concat(chicagoStartup));
+			childDiv.className=className;
+			
+			var text = document.createTextNode(index.toString().concat(' .) ').concat((cleanAndCountWords == false?chicagoStartup: cleanUp(chicagoStartup))));
             childDiv.appendChild(text);
             companyNamesContainer.appendChild(childDiv);
         });
 		
         rootDiv.appendChild(companyNamesContainer);
-        document.body.appendChild(rootDiv);
+        container.appendChild(rootDiv);
 		
     }
 
@@ -112,7 +128,8 @@
                 }
                 reversedChicagoStartups.forEach(function(chicagoStartup, index) {
                     console.log(chicagoStartup);
-                    var childDiv = document.createElement('div');
+                   var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
+					childDiv.className=className;
                     var text = document.createTextNode(chicagoStartup);
                     childDiv.appendChild(text);
                     reverseContainer.appendChild(childDiv);
@@ -122,6 +139,7 @@
                 //TODO:: REPLACE [chicagoStartups.reverse()] WITH A FUNCTION CALLED "chicagoStartupsReverse"
 				chicagoStartupsReverse().forEach( function(startup) {
                     var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
+					childDiv.className=className;
                     var text = document.createTextNode(startup);
                     childDiv.appendChild(text);
                     reverseContainer.appendChild(childDiv);
@@ -174,7 +192,9 @@
 			clearNodes(reverseContainer);
 		
 			chicagoStartups.forEach( function(chicagoStartup, index) {
-                    var childDiv = document.createElement('div');
+                    var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
+					childDiv.className=className;
+					
                     var text = document.createTextNode(index.toString().concat(' .)').concat(cleanUp(chicagoStartup)));
                     childDiv.appendChild(text);
                     companyNameContainer.appendChild(childDiv);
@@ -210,13 +230,18 @@
     function initReverse() {
         var reverseContainer = document.createElement('div');
         reverseContainer.id = 'reverseContainer';
+		reverseContainer.className='col-md-8';
         var reverseBtn = document.createElement('button');
         var btnText = document.createTextNode('Reverse');
         reverseBtn.onclick = renderReversedElements;
         reverseBtn.appendChild(btnText);
-        var reverseButtonContainer = document.createElement('div');
-        reverseButtonContainer.appendChild(reverseBtn);    
+        reverseBtn.className='btn btn-info';
+		var reverseButtonContainer = document.createElement('div');
+        reverseButtonContainer.appendChild(reverseBtn); 
+		reverseButtonContainer.className='col-md-1'		
         document.getElementById('rootContainer').appendChild(reverseButtonContainer);
+		 
+		
         document.getElementById('rootContainer').appendChild(reverseContainer);
     }
 
@@ -236,7 +261,10 @@
             3.  
         */
 		IsToggleDislayOn = !IsToggleDislayOn;
+		className = (className==='row' ? 'col-md-4' : 'row');
+		
 		run()
+		
 		
     }
     
@@ -246,15 +274,24 @@
 	
 		var rootDiv = document.getElementById('rootContainer');
         
-		var toggleContainer = document.createElement('div');
-        toggleContainer.id = 'toggleContainer';
+		//var toggleContainer = document.createElement('div');
+        //toggleContainer.id = 'toggleContainer';
 		
+		if(addToggleDisplayButton ==true)
+		{
 		var toggleBtn = document.createElement('button');
         var btnText = document.createTextNode('Toggle Display');
         toggleBtn.onclick = toggleDisplay;
         toggleBtn.appendChild(btnText);
-		toggleContainer.appendChild(toggleBtn);
-        rootDiv.appendChild(toggleContainer);    
+		toggleBtn.className='btn btn-info';
+		//toggleContainer.appendChild(toggleBtn);
+		
+		var buttonHolder = document.getElementById('buttons')
+		buttonHolder.appendChild(toggleBtn);
+		addToggleDisplayButton = false;
+		
+		}
+        //rootDiv.appendChild(toggleContainer);    
         
 	}
 	
