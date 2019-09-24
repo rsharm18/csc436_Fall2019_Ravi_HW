@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
     <h3>Javascript Basics</h3>
-    <button onclick="cleanAndCountCharacters()">
+    <button onclick="cleanAndCountCharacters(this)">
         clean and count words
     </button>
+	
     <body>
     </body>
 </html>
@@ -48,6 +49,9 @@
 
 <script>
     var colors = ['red', 'blue', 'gold'];
+	var cleanAndCountWords=false;
+	var IsToggleDislayOn = false;
+
     var chicagoStartups = [
         '  Interior   Define  ',
         'Classkick',
@@ -71,8 +75,10 @@
         var rootDiv = document.getElementById('rootContainer');
         if (rootDiv) {
             while (rootDiv.hasChildNodes()) {
-                rootDiv.removeChild(rootDiv.lastChild);
+				rootDiv.removeChild(rootDiv.lastChild);
             }
+			
+			document.body.removeChild(rootDiv);
         }
     }
 
@@ -81,14 +87,18 @@
         var rootDiv = document.createElement('div');
         rootDiv.id = 'rootContainer';
         var companyNamesContainer = document.createElement('div');
+		companyNamesContainer.id='companyNames';
+		
         chicagoStartups.forEach( function(chicagoStartup, index) {
-            var childDiv = document.createElement('div');
+            var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
             var text = document.createTextNode(index.toString().concat(' .) ').concat(chicagoStartup));
             childDiv.appendChild(text);
             companyNamesContainer.appendChild(childDiv);
         });
+		
         rootDiv.appendChild(companyNamesContainer);
         document.body.appendChild(rootDiv);
+		
     }
 
     function renderReversedElements() {
@@ -110,8 +120,8 @@
             }
             else {
                 //TODO:: REPLACE [chicagoStartups.reverse()] WITH A FUNCTION CALLED "chicagoStartupsReverse"
-                chicagoStartups.reverse().forEach( function(startup) {
-                    var childDiv = document.createElement('div');
+				chicagoStartupsReverse().forEach( function(startup) {
+                    var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
                     var text = document.createTextNode(startup);
                     childDiv.appendChild(text);
                     reverseContainer.appendChild(childDiv);
@@ -122,7 +132,8 @@
 
     function chicagoStartupsReverse() {
         var reversedStartups = [];
-        /*
+		
+		/*
             TODO: REVERSE THE CONTENTS OF THE ARRAY WITHOUT USING THE BUILT IN REVERSE METHOD
                   RETURN THE REVERSED ARRAY
 
@@ -133,18 +144,68 @@
                     DATA STRUTUCTURES REGARDLESS OF THE PROGRAMMING LANGUAGE
         
         */
-        return reversedStartups;
+		
+		var arraySize = chicagoStartups.length -1;
+		var elementCount = 0;
+		while(arraySize > -1 )
+		{
+		
+			reversedStartups[elementCount++] = (cleanAndCountWords == false?chicagoStartups[arraySize--]: cleanUp(chicagoStartups[arraySize--]));
+		}
+		
+		return reversedStartups;
     }
 
-    function cleanAndCountCharacters() {
+    function cleanAndCountCharacters(btn) {
         console.log('CLEAN AND COUNT CHARACTERS');
         /*
             TODO: REMOVES ANY SPECIAL CHARACTERS FROM EACH COMPANY NAME AND
               DISPLAYS THE NUMBER OF REMAINING CHARACTERS NEXT TO THE FULL WORD.
               DONT FORGET TO REMOVE LEADING AND TRAILING WHITESPACES AS WELL
         */
+		if(cleanAndCountWords==false)
+		{
+			
+			cleanAndCountWords=true;
+			btn.firstChild.data = 'Undo clean and count words'
+			var companyNameContainer = document.getElementById('companyNames');
+			var reverseContainer = document.getElementById('reverseContainer');
+			clearNodes(companyNameContainer);
+			clearNodes(reverseContainer);
+		
+			chicagoStartups.forEach( function(chicagoStartup, index) {
+                    var childDiv = document.createElement('div');
+                    var text = document.createTextNode(index.toString().concat(' .)').concat(cleanUp(chicagoStartup)));
+                    childDiv.appendChild(text);
+                    companyNameContainer.appendChild(childDiv);
+                });
+		}	
+		else
+		{
+			cleanAndCountWords=false;
+			btn.firstChild.data ='clean and count words'
+			run();
+		}
 
     }
+	
+	function cleanUp(data)
+	{
+		data = data.replace(/[^a-zA-Z ]/g, "").trim();//remove the special characters and trim
+		data = data.replace(/ +(?= )/g,''); //replace multiple spaces with single space
+		
+	  return data.concat(" ").concat(data.length);
+	}
+	
+	function clearNodes(node)
+	{
+		
+		if (node) {
+            while (node.hasChildNodes()) {
+                node.removeChild(node.lastChild);
+            }
+        }
+	}
     
     function initReverse() {
         var reverseContainer = document.createElement('div');
@@ -174,11 +235,34 @@
 
             3.  
         */
+		IsToggleDislayOn = !IsToggleDislayOn;
+		run()
+		
     }
     
+	//add the toggle display javascript button - Ravi
+	function initToggleDisplay()
+	{
+	
+		var rootDiv = document.getElementById('rootContainer');
+        
+		var toggleContainer = document.createElement('div');
+        toggleContainer.id = 'toggleContainer';
+		
+		var toggleBtn = document.createElement('button');
+        var btnText = document.createTextNode('Toggle Display');
+        toggleBtn.onclick = toggleDisplay;
+        toggleBtn.appendChild(btnText);
+		toggleContainer.appendChild(toggleBtn);
+        rootDiv.appendChild(toggleContainer);    
+        
+	}
+	
     function run() {
         initDocument();
         initReverse();
+		initToggleDisplay();
+		
     }
     run();
     
