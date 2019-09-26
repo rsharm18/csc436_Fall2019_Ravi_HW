@@ -15,6 +15,9 @@
 			<button onclick="cleanAndCountCharacters(this)" class='btn btn-info'>
 				clean and count words
 			</button>
+			
+			<div style="display:none;" class="btn-default border border-success d-lg-inline-flex" id='charCountDiv' width="100%" >
+			
 			</div>
 		</div>
     </body>
@@ -60,11 +63,11 @@
 
 <script>
     var colors = ['red', 'blue', 'gold'];
-	var cleanAndCountWords=false;
-	var IsToggleDislayOn = false;
-	var addToggleDisplayButton=true;
-	var className='row';
-	
+	var cleanAndCountWords=false; //flag to keep track of cleanCountButtonclick
+	var IsToggleDislayOn = false; //flag to keep track of toggle display
+	var addToggleDisplayButton=true; //flag to keep track of adding toggle display button
+	var className='row';			//default class for divs
+	var charCountObject={"a":0};	//json master data
     var chicagoStartups = [
         '  Interior   Define  ',
         'Classkick',
@@ -91,7 +94,7 @@
 				rootDiv.removeChild(rootDiv.lastChild);
             }
 			
-			container.removeChild(rootDiv);
+			container.removeChild(rootDiv); //remove the contianer div
         }
     }
 
@@ -100,13 +103,15 @@
         var rootDiv = document.createElement('div');
         rootDiv.id = 'rootContainer';
         var companyNamesContainer = document.createElement('div');
-		companyNamesContainer.id='companyNames';
-		companyNamesContainer.className='col-md-6';
+		companyNamesContainer.id='companyNames'; //assign an id to the company div
+		companyNamesContainer.className='col-md-6'; //assign a default class
 		
         chicagoStartups.forEach( function(chicagoStartup, index) {
+			//decide between div v/s span  depending on the toggel mode
             var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
-			childDiv.className=className;
+			childDiv.className=className;//assign a class
 			
+			//show cleanup text if cleanupcount button is pressed
 			var text = document.createTextNode(index.toString().concat(' .) ').concat((cleanAndCountWords == false?chicagoStartup: cleanUp(chicagoStartup))));
             childDiv.appendChild(text);
             companyNamesContainer.appendChild(childDiv);
@@ -128,8 +133,10 @@
                 }
                 reversedChicagoStartups.forEach(function(chicagoStartup, index) {
                     console.log(chicagoStartup);
+					
+					//decide between div v/s span  depending on the toggel mode
                    var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
-					childDiv.className=className;
+					childDiv.className="startups-container";//add class name
                     var text = document.createTextNode(chicagoStartup);
                     childDiv.appendChild(text);
                     reverseContainer.appendChild(childDiv);
@@ -139,7 +146,7 @@
                 //TODO:: REPLACE [chicagoStartups.reverse()] WITH A FUNCTION CALLED "chicagoStartupsReverse"
 				chicagoStartupsReverse().forEach( function(startup) {
                     var childDiv = (IsToggleDislayOn==false ? document.createElement('div') : document.createElement('span'));
-					childDiv.className=className;
+					childDiv.className="startups-container";
                     var text = document.createTextNode(startup);
                     childDiv.appendChild(text);
                     reverseContainer.appendChild(childDiv);
@@ -163,6 +170,7 @@
         
         */
 		
+		// logic for Reversal - ravi
 		var arraySize = chicagoStartups.length -1;
 		var elementCount = 0;
 		while(arraySize > -1 )
@@ -185,6 +193,7 @@
 		{
 			
 			cleanAndCountWords=true;
+			charCountObject={};
 			btn.firstChild.data = 'Undo clean and count words'
 			var companyNameContainer = document.getElementById('companyNames');
 			var reverseContainer = document.getElementById('reverseContainer');
@@ -196,27 +205,59 @@
 					childDiv.className=className;
 					
                     var text = document.createTextNode(index.toString().concat(' .)').concat(cleanUp(chicagoStartup)));
-                    childDiv.appendChild(text);
+					childDiv.appendChild(text);
                     companyNameContainer.appendChild(childDiv);
                 });
+				
+				//show the char count of each char across startup name
+				//document.getElementById('charCount').value = JSON.stringify(charCountObject);
+				var charCountDiv = document.getElementById('charCountDiv');
+				clearNodes(charCountDiv);
+				charCountDiv.style.display="block";
+				var text = document.createTextNode("# of occurrences of each character accross all startup names = ");
+				charCountDiv.appendChild(text);
+				text = document.createTextNode(JSON.stringify(charCountObject));
+                charCountDiv.appendChild(text);
+				btn.className="btn btn-danger";
+				
 		}	
-		else
+		else //show the data as it is
 		{
 			cleanAndCountWords=false;
-			btn.firstChild.data ='clean and count words'
+			btn.firstChild.data ='clean and count words';
+			
+			btn.className="btn btn-info";
+			document.getElementById('charCountDiv').style.display="none";
+			clearNodes(document.getElementById('charCountDiv'));
 			run();
+			
 		}
-
     }
 	
+	// custom method to clean up data - ravi
 	function cleanUp(data)
 	{
 		data = data.replace(/[^a-zA-Z ]/g, "").trim();//remove the special characters and trim
 		data = data.replace(/ +(?= )/g,''); //replace multiple spaces with single space
 		
-	  return data.concat(" ").concat(data.length);
+		let s1 = JSON.stringify([...data].reduce((dataString, charLet) => { 
+		if(charCountObject.hasOwnProperty(charLet))
+		{
+			charCountObject[charLet] = charCountObject[charLet] + 1;
+		}
+		else
+		{
+		charCountObject[charLet] = 1;
+		}
+		dataString[charLet] = dataString[charLet] ? dataString[charLet] + 1 : 1; return dataString 
+		}, {})); //holds the #of char count for each startup
+		
+		
+		data = data.concat(" ").concat(data.length).concat(" ")//.concat(s1);
+	  return data;
 	}
 	
+	// custom method to delete node content
 	function clearNodes(node)
 	{
 		
@@ -299,6 +340,7 @@
         initDocument();
         initReverse();
 		initToggleDisplay();
+		document.getElementById('charCountDiv').style.display="none";
 		
     }
     run();
@@ -343,6 +385,6 @@
                         `);
         }
         
-    });
+    })();
 
 </script>
